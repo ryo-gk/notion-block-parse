@@ -23,7 +23,7 @@ describe('parser', () => {
       }
 
       const html = blockToHTML([block])
-      expect(html).toEqual('<p>This is a paragraph text.</p>')
+      expect(html).toEqual('<p><span>This is a paragraph text.</span></p>')
     })
 
     test('quote block', () => {
@@ -42,7 +42,7 @@ describe('parser', () => {
 
       const html = blockToHTML([block])
       expect(html).toEqual(
-        '<blockquote><p>This is a quoted text.</p></blockquote>'
+        '<blockquote><p><span>This is a quoted text.</span></p></blockquote>'
       )
     })
 

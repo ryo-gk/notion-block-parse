@@ -45,33 +45,51 @@ export function createHTML(block: Block) {
 export function createElementParagraph(block: ParagraphBlock) {
   const texts = block.paragraph.text
 
+  return wrapWithTag('p', createElementText(texts))
+}
+
+function createElementText(texts: Text[]) {
   return texts
-    .map(text => wrapWithTag('p', text.plain_text))
+    .map(text => {
+      if (text.annotations) {
+        return wrapWithTag('span', text.plain_text, { classes: getClassesByAnnotations(text.annotations)})
+      }
+      return wrapWithTag('span', text.plain_text)
+    })
     .join('')
+}
+
+function getClassesByAnnotations(annotations: Annotations) {
+  return Object.entries(annotations)
+    .filter(([_key, value]) => {
+      return value
+    })
+    .map(([key, value]) => {
+      if (typeof value === 'boolean') {
+        return key
+      }
+      if (typeof value === 'string') {
+        return `${key}--${value}`
+      }
+    })
 }
 
 export function createElementHeadingOne(block: HeadingOneBlock) {
   const texts = block.heading_1.text
 
-  return texts
-    .map(text => wrapWithTag('h1', text.plain_text))
-    .join('')
+  return wrapWithTag('h1', createElementText(texts))
 }
 
 export function createElementHeadingTwo(block: HeadingTwoBlock) {
   const texts = block.heading_2.text
 
-  return texts
-    .map(text => wrapWithTag('h2', text.plain_text))
-    .join('')
+  return wrapWithTag('h2', createElementText(texts))
 }
 
 export function createElementHeadingThree(block: HeadingThreeBlock) {
   const texts = block.heading_3.text
 
-  return texts
-    .map(text => wrapWithTag('h3', text.plain_text))
-    .join('')
+  return wrapWithTag('h3', createElementText(texts))
 }
 
 export function createElementCallout(block: CalloutBlock) {
@@ -95,11 +113,10 @@ export function getElementIcon(icon: Icon) {
 export function createElementQuote(block: QuoteBlock) {
   const texts = block.quote.text
 
-  const content = texts
-    .map(text => wrapWithTag('p', text.plain_text))
-    .join('')
 
-  return wrapWithTag('blockquote', content)
+  const content = createElementText(texts)
+
+  return wrapWithTag('blockquote', wrapWithTag('p', content))
 }
 
 export function createElementBalletedListItem(block: BalletedListItemBlock) {
@@ -298,6 +315,16 @@ export type BlockType = 'paragraph' | 'quote' | 'code' | 'heading_1' | 'heading_
 export interface Text {
   type: 'text' | 'mention' | 'quation'
   plain_text: string
+  annotations?: Annotations
+}
+
+export interface Annotations {
+  bold: boolean
+  italic: boolean
+  strikethrough: boolean
+  underline: boolean
+  code: boolean
+  color: string
 }
 
 export interface ParagraphBlock extends Block {

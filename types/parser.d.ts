@@ -23,6 +23,15 @@ export declare type BlockType = 'paragraph' | 'quote' | 'code' | 'heading_1' | '
 export interface Text {
     type: 'text' | 'mention' | 'quation';
     plain_text: string;
+    annotations?: Annotations;
+}
+export interface Annotations {
+    bold: boolean;
+    italic: boolean;
+    strikethrough: boolean;
+    underline: boolean;
+    code: boolean;
+    color: string;
 }
 export interface ParagraphBlock extends Block {
     type: 'paragraph';
