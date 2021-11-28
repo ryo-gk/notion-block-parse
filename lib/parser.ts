@@ -25,6 +25,8 @@ export function createHTML(block: Block) {
       return createElementQuote(block as QuoteBlock)
     case 'bulleted_list_item':
       return createElementBalletedListItem(block as BalletedListItemBlock)
+    case 'numbered_list_item':
+      return createElementNumberedListItem(block as NumberedListItemBlock)
     case 'code':
       return createElementCode(block as CodeBlock)
     case 'toggle':
@@ -106,6 +108,20 @@ function createElementBalletedListItem(block: BalletedListItemBlock) {
   }
 
   return wrapWithTag('div', text, { classes: ['bulleted-list-item']})
+}
+
+function createElementNumberedListItem(block: NumberedListItemBlock) {
+  const text = block.numbered_list_item.text.map(text => text.plain_text).join('')
+  const children = block.numbered_list_item.children
+
+  if (children) {
+    const childElement = children ? blockToHTML(children) : ''
+
+    return wrapWithTag('div', text, { classes: ['numbered-list-item']})
+      + wrapWithTag('div', childElement, { classes: ['numbered-list-item_child']})
+  }
+
+  return wrapWithTag('div', text, { classes: ['numbered-list-item']})
 }
 
 function createElementCode(block: CodeBlock) {
@@ -230,6 +246,14 @@ export interface QuoteBlock extends Block {
 export interface BalletedListItemBlock extends Block {
   type: 'bulleted_list_item'
   bulleted_list_item: {
+    text: Text[]
+    children: Block[]
+  }
+}
+
+export interface NumberedListItemBlock extends Block {
+  type: 'numbered_list_item'
+  numbered_list_item: {
     text: Text[]
     children: Block[]
   }

@@ -63,6 +63,13 @@ export interface BalletedListItemBlock extends Block {
         children: Block[];
     };
 }
+export interface NumberedListItemBlock extends Block {
+    type: 'numbered_list_item';
+    numbered_list_item: {
+        text: Text[];
+        children: Block[];
+    };
+}
 export interface ToggleBlock extends Block {
     type: 'toggle';
     toggle: {
