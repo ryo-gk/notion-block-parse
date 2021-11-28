@@ -1,0 +1,7 @@
+{
+  "include": ["lib/index.ts"],
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "types/"
+  }
+}

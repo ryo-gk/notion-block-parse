@@ -1,0 +1,43 @@
+{
+  "name": "notion-block-parse",
+  "version": "0.1.0",
+  "description": "parser of notion blocks",
+  "main": "dist/notion-block-parse.esm.js",
+  "unpkg": "dist/notion-block-parse.umd.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "build": "yarn build:umd & yarn build:es & yarn build:type",
+    "build:type": "tsc -P tsconfig.types.json --emitDeclarationOnly",
+    "build:umd": "rollup --config rollup.config.ts --format umd --file dist/notion-block-parse.umd.js",
+    "build:es": "rollup --config rollup.config.ts --format es --file dist/notion-block-parse.esm.js",
+    "jest": "jest",
+    "lint": "prettier --check --write --parser typescript \"{src,__tests__}/**/*.ts\"",
+    "lint:fail": "prettier --check --parser typescript \"{src,__tests__}/**/*.ts\""
+  },
+  "keywords": [
+    "notion",
+    "notion-api"
+  ],
+  "author": "ryo-gk",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.7",
+    "esbuild": "^0.13.14",
+    "jest": "^27.3.1",
+    "prettier": "^2.5.0",
+    "rollup": "^2.60.0",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-esbuild": "^4.7.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "ts-jest": "^27.0.7",
+    "ts-loader": "^8.1.0",
+    "ts-node": "^9.1.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.2"
+  }
+}

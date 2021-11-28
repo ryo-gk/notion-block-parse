@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "es2019",
+    "module": "ES2015",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "types": ["node", "jest"]
+  },
+  "include": [
+    "lib/**/*",
+    "__tests__/**/*"
+  ]
+}
