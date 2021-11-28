@@ -1,9 +1,25 @@
 export declare function blockToHTML(blocks: Block[]): string;
 export declare function createHTML(block: Block): any;
+export declare function createElementParagraph(block: ParagraphBlock): string;
+export declare function createElementHeadingOne(block: HeadingOneBlock): string;
+export declare function createElementHeadingTwo(block: HeadingTwoBlock): string;
+export declare function createElementHeadingThree(block: HeadingThreeBlock): string;
+export declare function createElementCallout(block: CalloutBlock): string;
+export declare function getElementIcon(icon: Icon): string;
+export declare function createElementQuote(block: QuoteBlock): string;
+export declare function createElementBalletedListItem(block: BalletedListItemBlock): string;
+export declare function createElementNumberedListItem(block: NumberedListItemBlock): string;
+export declare function createElementToDo(block: ToDoBlock): string;
+export declare function createElementToggle(block: ToggleBlock): string;
+export declare function createElementCode(block: CodeBlock): string;
+export declare function createElementImage(block: ImageBlock): string;
+export declare function createElementVideo(block: VideoBlock): string;
+export declare function createElementDefault(block: Block): any;
 export interface Block {
     id: string;
     type: BlockType;
 }
+export declare type BlockType = 'paragraph' | 'quote' | 'code' | 'heading_1' | 'heading_2' | 'heading_3' | 'callout' | 'bulleted_list_item' | 'numbered_list_item' | 'to_do' | 'toggle' | 'child_page' | 'child_database' | 'embed' | 'image' | 'video' | 'file' | 'pdf' | 'bookmark' | 'unsupported';
 export interface Text {
     type: 'text' | 'mention' | 'quation';
     plain_text: string;
@@ -70,6 +86,14 @@ export interface NumberedListItemBlock extends Block {
         children: Block[];
     };
 }
+export interface ToDoBlock extends Block {
+    type: 'to_do';
+    to_do: {
+        text: Text[];
+        checked: boolean;
+        children: Block[];
+    };
+}
 export interface ToggleBlock extends Block {
     type: 'toggle';
     toggle: {
@@ -84,4 +108,22 @@ export interface CodeBlock extends Block {
         language: string;
     };
 }
-export declare type BlockType = 'paragraph' | 'quote' | 'code' | 'heading_1' | 'heading_2' | 'heading_3' | 'callout' | 'bulleted_list_item' | 'numbered_list_item' | 'to_do' | 'toggle' | 'child_page' | 'child_database' | 'embed' | 'image' | 'video' | 'file' | 'pdf' | 'bookmark' | 'unsupported';
+export interface ImageBlock extends Block {
+    type: 'image';
+    image: File;
+}
+export interface File {
+    type: 'file' | 'external';
+    caption?: Text;
+    file?: {
+        url: string;
+        expiry_time: string;
+    };
+    external?: {
+        url: string;
+    };
+}
+export interface VideoBlock extends Block {
+    type: 'video';
+    video: File;
+}

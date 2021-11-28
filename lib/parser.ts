@@ -27,16 +27,22 @@ export function createHTML(block: Block) {
       return createElementBalletedListItem(block as BalletedListItemBlock)
     case 'numbered_list_item':
       return createElementNumberedListItem(block as NumberedListItemBlock)
-    case 'code':
-      return createElementCode(block as CodeBlock)
+    case 'to_do':
+      return createElementToDo(block as ToDoBlock)
     case 'toggle':
       return createElementToggle(block as ToggleBlock)
+    case 'code':
+        return createElementCode(block as CodeBlock)
+    case 'image':
+      return createElementImage(block as ImageBlock)
+    case 'video':
+      return createElementVideo(block as VideoBlock)
     default:
       return createElementDefault(block)
   }
 }
 
-function createElementParagraph(block: ParagraphBlock) {
+export function createElementParagraph(block: ParagraphBlock) {
   const texts = block.paragraph.text
 
   return texts
@@ -44,7 +50,7 @@ function createElementParagraph(block: ParagraphBlock) {
     .join('')
 }
 
-function createElementHeadingOne(block: HeadingOneBlock) {
+export function createElementHeadingOne(block: HeadingOneBlock) {
   const texts = block.heading_1.text
 
   return texts
@@ -52,7 +58,7 @@ function createElementHeadingOne(block: HeadingOneBlock) {
     .join('')
 }
 
-function createElementHeadingTwo(block: HeadingTwoBlock) {
+export function createElementHeadingTwo(block: HeadingTwoBlock) {
   const texts = block.heading_2.text
 
   return texts
@@ -60,7 +66,7 @@ function createElementHeadingTwo(block: HeadingTwoBlock) {
     .join('')
 }
 
-function createElementHeadingThree(block: HeadingThreeBlock) {
+export function createElementHeadingThree(block: HeadingThreeBlock) {
   const texts = block.heading_3.text
 
   return texts
@@ -68,14 +74,14 @@ function createElementHeadingThree(block: HeadingThreeBlock) {
     .join('')
 }
 
-function createElementCallout(block: CalloutBlock) {
+export function createElementCallout(block: CalloutBlock) {
   const text = block.callout.text.map(text => text.plain_text).join('')
   const icon = getElementIcon(block.callout.icon)
 
   return wrapWithTag('div', icon + wrapWithTag('div', text), { classes: ['callout']})
 }
 
-function getElementIcon(icon: Icon) {
+export function getElementIcon(icon: Icon) {
   switch(icon.type) {
     case 'emoji':
       return wrapWithTag('span', icon.emoji, { classes: ['emoji'], attrs: [['role', ['image']], ['aria-label', [icon.emoji]]]})
@@ -86,7 +92,7 @@ function getElementIcon(icon: Icon) {
   }
 }
 
-function createElementQuote(block: QuoteBlock) {
+export function createElementQuote(block: QuoteBlock) {
   const texts = block.quote.text
 
   const content = texts
@@ -96,7 +102,7 @@ function createElementQuote(block: QuoteBlock) {
   return wrapWithTag('blockquote', content)
 }
 
-function createElementBalletedListItem(block: BalletedListItemBlock) {
+export function createElementBalletedListItem(block: BalletedListItemBlock) {
   const text = block.bulleted_list_item.text.map(text => text.plain_text).join('')
   const children = block.bulleted_list_item.children
 
@@ -110,7 +116,7 @@ function createElementBalletedListItem(block: BalletedListItemBlock) {
   return wrapWithTag('div', text, { classes: ['bulleted-list-item']})
 }
 
-function createElementNumberedListItem(block: NumberedListItemBlock) {
+export function createElementNumberedListItem(block: NumberedListItemBlock) {
   const text = block.numbered_list_item.text.map(text => text.plain_text).join('')
   const children = block.numbered_list_item.children
 
@@ -124,14 +130,42 @@ function createElementNumberedListItem(block: NumberedListItemBlock) {
   return wrapWithTag('div', text, { classes: ['numbered-list-item']})
 }
 
-function createElementCode(block: CodeBlock) {
-  const text = block.code.text.map(text => text.plain_text).join('')
-  const language = block.code.language
+export function createElementToDo(block: ToDoBlock) {
+  const text = block.to_do.text.map(text => text.plain_text).join('')
+  const checked = block.to_do.checked
+  const children = block.to_do.children
+  
+  const attrs: [string, string[]][] = [
+    ['type', ['checkbox']]
+  ]
+  checked && attrs.push(['checked', ['']])
 
-  return wrapWithTag('pre', wrapWithTag('code', text), { classes: [language]})
+  if (children) {
+    const childElement = children ? blockToHTML(children) : ''
+
+    return wrapWithTag(
+      'div',
+      wrapWithTag(
+        'input',
+        wrapWithTag('span', text, { classes: ['to-do_text']}),
+        { classes: ['to-do_checkbox'], attrs }
+      ),
+      { classes: ['to-do']}
+    ) + wrapWithTag('div', childElement, { classes: ['to-do_child']})
+  }
+
+  return wrapWithTag(
+    'div',
+    wrapWithTag(
+      'input',
+      wrapWithTag('span', text, { classes: ['to-do_text']}),
+      { classes: ['to-do_checkbox'], attrs }
+    ),
+    { classes: ['to-do']}
+  )
 }
 
-function createElementToggle(block: ToggleBlock) {
+export function createElementToggle(block: ToggleBlock) {
   const text = block.toggle.text.map(text => text.plain_text).join('')
   const children = block.toggle.children
 
@@ -145,7 +179,79 @@ function createElementToggle(block: ToggleBlock) {
   return wrapWithTag('div', text, { classes: ['toggle']})
 }
 
-function createElementDefault(block: Block) {
+export function createElementCode(block: CodeBlock) {
+  const text = block.code.text.map(text => text.plain_text).join('')
+  const language = block.code.language
+
+  return wrapWithTag('pre', wrapWithTag('code', text), { classes: [language]})
+}
+
+export function createElementImage(block: ImageBlock) {
+  const imageElement = getElementImage(block.image)
+  const caption = block.image.caption[0]?.plain_text
+  
+  if (caption) {
+    return wrapWithTag(
+      'div',
+      imageElement + wrapWithTag('div', caption, { classes: ['caption']}),
+      { classes: ['image']}
+    )
+  }
+
+  return wrapWithTag('div', imageElement, { classes: ['image']})
+}
+
+function getElementImage(image: File) {
+  switch(image.type) {
+    case 'file':
+      return wrapWithTag('img', '', { attrs: [['src', [image.file.url]]]})
+    case 'external':
+      return wrapWithTag('img', '', { attrs: [['src', [image.external.url]]]})
+  }
+}
+
+export function createElementVideo(block: VideoBlock) {
+  const videoElement = getElementVideo(block.video)
+  const caption = block.video.caption[0]?.plain_text
+
+  if (caption) {
+    return wrapWithTag(
+      'div',
+      videoElement + wrapWithTag('div', caption, { classes: ['caption']}),
+      { classes: ['video']}
+    )
+  }
+
+  return wrapWithTag('div', videoElement, { classes: ['video']})
+}
+
+function getElementVideo(video: File) {
+  switch(video.type) {
+    case 'file':
+      return wrapWithTag(
+        'iframe',
+        '',
+        { attrs: [
+          ['src', [video.file.url]],
+          ['frameborder', ['0']],
+          ['allowfullscreen', ['']]
+        ]}
+      )
+    case 'external':
+      return wrapWithTag(
+        'iframe',
+        '',
+        { attrs: [
+          ['src', [video.external.url]],
+          ['frameborder', ['0']],
+          ['allowfullscreen', ['']]
+        ]}
+      )
+  }
+}
+
+
+export function createElementDefault(block: Block) {
   return (block as any)[block.type].text.map((text: any) => text.plain_text).join() ?? ''
 }
 
@@ -182,6 +288,12 @@ export interface Block {
   id: string
   type: BlockType
 }
+
+export type BlockType = 'paragraph' | 'quote' | 'code' | 'heading_1' | 'heading_2' |
+  'heading_3' | 'callout' | 'bulleted_list_item' | 'numbered_list_item' |
+  'to_do' | 'toggle' | 'child_page' |
+  'child_database' | 'embed' | 'image' |
+  'video' | 'file' | 'pdf' | 'bookmark' | 'unsupported'
 
 export interface Text {
   type: 'text' | 'mention' | 'quation'
@@ -259,6 +371,15 @@ export interface NumberedListItemBlock extends Block {
   }
 }
 
+export interface ToDoBlock extends Block {
+  type: 'to_do'
+  to_do: {
+    text: Text[]
+    checked: boolean
+    children: Block[]
+  }
+}
+
 export interface ToggleBlock extends Block {
   type: 'toggle'
   toggle: {
@@ -275,8 +396,24 @@ export interface CodeBlock extends Block {
   }
 }
 
-export type BlockType = 'paragraph' | 'quote' | 'code' | 'heading_1' | 'heading_2' |
-  'heading_3' | 'callout' | 'bulleted_list_item' | 'numbered_list_item' |
-  'to_do' | 'toggle' | 'child_page' |
-  'child_database' | 'embed' | 'image' |
-  'video' | 'file' | 'pdf' | 'bookmark' | 'unsupported'
+export interface ImageBlock extends Block {
+  type: 'image'
+  image: File
+}
+
+export interface File {
+  type: 'file' | 'external'
+  caption?: Text
+  file?: {
+    url: string
+    expiry_time: string
+  }
+  external?: {
+    url: string
+  }
+}
+
+export interface VideoBlock extends Block {
+  type: 'video'
+  video: File
+}
